@@ -58,10 +58,14 @@ function handleApplyPct(e) {
   const meta = el('meta-apply-pct');
   out.textContent = ''; err.textContent = ''; meta.textContent = '';
   try {
-    const base = parseFloat(el('ap_base').value);
-    const pct = parseFloat(el('ap_pct').value);
+    const baseEl = el('ap_base');
+    const pctEl = el('ap_pct');
+    if (!baseEl || !pctEl) throw 'Internal error: missing inputs.';
+    const base = parseFloat(baseEl.value);
+    const pct = parseFloat(pctEl.value);
     if (!isFinite(base) || !isFinite(pct)) throw 'Please enter valid numbers.';
-    const dir = document.querySelector('input[name="ap_dir"]:checked').value;
+    const dirEl = document.querySelector('input[name="ap_dir"]:checked');
+    const dir = dirEl ? dirEl.value : 'increase';
     const change = (base * pct) / 100;
     const newVal = dir === 'increase' ? base + change : base - change;
     const sign = dir === 'increase' ? '+' : '-';
