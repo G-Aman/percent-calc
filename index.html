@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Advanced Percentage Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="wrap">
+    <h1>Percentage Calculator — multiple modes</h1>
+
+    <section class="card" aria-labelledby="calc-heading">
+      <h2 id="calc-heading" class="visually-hidden">Calculator</h2>
+
+      <label for="mode">Mode</label>
+      <select id="mode" aria-describedby="mode-help">
+        <option value="pct-of">What is % of ? (X% of Y)</option>
+        <option value="what-percent">What percent is A of B?</option>
+        <option value="apply-pct">Increase / Decrease by %</option>
+        <option value="pct-change">Percentage change from A to B</option>
+      </select>
+      <p id="mode-help" class="small muted">Choose a mode — inputs change automatically.</p>
+
+      <form id="calc-form" novalidate>
+        <div id="fields" aria-live="polite" aria-atomic="true">
+          <!-- Dynamic fields inserted here -->
+        </div>
+
+        <div class="row">
+          <button id="calc-btn" class="btn primary" type="submit">Calculate</button>
+          <button id="clear-btn" class="btn" type="button">Clear</button>
+          <button id="copy-btn" class="btn" type="button">Copy</button>
+        </div>
+
+        <div id="error" class="error" role="status" aria-live="assertive"></div>
+        <div id="output" class="output" role="region" aria-live="polite"></div>
+        <div id="meta" class="result-meta" aria-hidden="true"></div>
+      </form>
+
+      <p class="muted">Tips: press Enter to calculate. Results are shown with up to 2 decimals.</p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
