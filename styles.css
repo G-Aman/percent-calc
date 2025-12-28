@@ -2,7 +2,7 @@
   --bg:#f6f8fa; --card:#fff; --primary:#2563eb; --muted:#6b7280;
   --danger:#dc2626; --radius:10px; --gap:12px;
 }
-*{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+*{box-sizing:border-box;font-family:'Maven Pro',system-ui,-apple-system,"Segoe UI",Roboto,Arial}
 html,body{height:100%;margin:0;background:var(--bg);color:#0f172a}
 .wrap{max-width:720px;margin:4vh auto;padding:18px}
 h1{margin:0 0 14px;font-size:1.4rem;text-align:center}
@@ -26,3 +26,14 @@ select,input[type=number],input[type=text]{
 .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
 
 .calc-block{border-top:1px dashed #e6eefc;padding-top:14px;margin-top:14px}
+
+.calc-block label{display:inline-block;width:34%;margin-top:0;font-weight:600}
+.calc-block input[type=number], .calc-block .controls-inline{display:inline-block;width:62%;vertical-align:middle;margin-top:6px}
+.calc-block .controls-inline{gap:12px}
+.calc-block .row{margin-top:10px}
+
+@media (max-width:520px){
+  .calc-block label{display:block;width:100%}
+  .calc-block input[type=number], .calc-block .controls-inline{display:block;width:100%}
+  .row{flex-direction:column}
+}
