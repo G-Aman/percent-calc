@@ -13,32 +13,92 @@
     <section class="card" aria-labelledby="calc-heading">
       <h2 id="calc-heading" class="visually-hidden">Calculator</h2>
 
-      <label for="mode">Mode</label>
-      <select id="mode" aria-describedby="mode-help">
-        <option value="pct-of">What is % of ? (X% of Y)</option>
-        <option value="what-percent">What percent is A of B?</option>
-        <option value="apply-pct">Increase / Decrease by %</option>
-        <option value="pct-change">Percentage change from A to B</option>
-      </select>
-      <p id="mode-help" class="small muted">Choose a mode — inputs change automatically.</p>
+      <p class="muted">All calculator modes are shown below. Use each block independently.</p>
 
-      <form id="calc-form" novalidate>
-        <div id="fields" aria-live="polite" aria-atomic="true">
-          <!-- Dynamic fields inserted here -->
-        </div>
+      <div class="calc-block" id="block-pct-of">
+        <h3>What is % of? (X% of Y)</h3>
+        <form id="form-pct-of" novalidate>
+          <label for="pct_of_pct">Percentage (%)</label>
+          <input id="pct_of_pct" name="pct" type="number" inputmode="decimal" step="any" placeholder="e.g. 15" />
+          <label for="pct_of_value">Value</label>
+          <input id="pct_of_value" name="value" type="number" inputmode="decimal" step="any" placeholder="e.g. 200" />
 
-        <div class="row">
-          <button id="calc-btn" class="btn primary" type="submit">Calculate</button>
-          <button id="clear-btn" class="btn" type="button">Clear</button>
-          <button id="copy-btn" class="btn" type="button">Copy</button>
-        </div>
+          <div class="row">
+            <button id="calc-pct-of" class="btn primary" type="submit">Calculate</button>
+            <button id="clear-pct-of" class="btn" type="button">Clear</button>
+            <button id="copy-pct-of" class="btn" type="button">Copy</button>
+          </div>
 
-        <div id="error" class="error" role="status" aria-live="assertive"></div>
-        <div id="output" class="output" role="region" aria-live="polite"></div>
-        <div id="meta" class="result-meta" aria-hidden="true"></div>
-      </form>
+          <div id="error-pct-of" class="error" role="status" aria-live="assertive"></div>
+          <div id="output-pct-of" class="output" role="region" aria-live="polite"></div>
+          <div id="meta-pct-of" class="result-meta" aria-hidden="true"></div>
+        </form>
+      </div>
 
-      <p class="muted">Tips: press Enter to calculate. Results are shown with up to 2 decimals.</p>
+      <div class="calc-block" id="block-what-percent">
+        <h3>What percent is A of B?</h3>
+        <form id="form-what-percent" novalidate>
+          <label for="wp_part">Part (A)</label>
+          <input id="wp_part" name="part" type="number" inputmode="decimal" step="any" placeholder="e.g. 30" />
+          <label for="wp_whole">Whole (B)</label>
+          <input id="wp_whole" name="whole" type="number" inputmode="decimal" step="any" placeholder="e.g. 200" />
+
+          <div class="row">
+            <button id="calc-what-percent" class="btn primary" type="submit">Calculate</button>
+            <button id="clear-what-percent" class="btn" type="button">Clear</button>
+            <button id="copy-what-percent" class="btn" type="button">Copy</button>
+          </div>
+
+          <div id="error-what-percent" class="error" role="status" aria-live="assertive"></div>
+          <div id="output-what-percent" class="output" role="region" aria-live="polite"></div>
+          <div id="meta-what-percent" class="result-meta" aria-hidden="true"></div>
+        </form>
+      </div>
+
+      <div class="calc-block" id="block-apply-pct">
+        <h3>Increase / Decrease by %</h3>
+        <form id="form-apply-pct" novalidate>
+          <label for="ap_base">Base value</label>
+          <input id="ap_base" name="base" type="number" inputmode="decimal" step="any" placeholder="e.g. 100" />
+          <label for="ap_pct">Percentage (%)</label>
+          <input id="ap_pct" name="pct" type="number" inputmode="decimal" step="any" placeholder="e.g. 15" />
+          <div class="controls-inline" role="radiogroup" aria-label="Increase or Decrease">
+            <label><input type="radio" name="ap_dir" value="increase" checked /> Increase</label>
+            <label><input type="radio" name="ap_dir" value="decrease" /> Decrease</label>
+          </div>
+
+          <div class="row">
+            <button id="calc-apply-pct" class="btn primary" type="submit">Calculate</button>
+            <button id="clear-apply-pct" class="btn" type="button">Clear</button>
+            <button id="copy-apply-pct" class="btn" type="button">Copy</button>
+          </div>
+
+          <div id="error-apply-pct" class="error" role="status" aria-live="assertive"></div>
+          <div id="output-apply-pct" class="output" role="region" aria-live="polite"></div>
+          <div id="meta-apply-pct" class="result-meta" aria-hidden="true"></div>
+        </form>
+      </div>
+
+      <div class="calc-block" id="block-pct-change">
+        <h3>Percentage change from A to B</h3>
+        <form id="form-pct-change" novalidate>
+          <label for="pc_from">From (old value)</label>
+          <input id="pc_from" name="from" type="number" inputmode="decimal" step="any" placeholder="e.g. 80" />
+          <label for="pc_to">To (new value)</label>
+          <input id="pc_to" name="to" type="number" inputmode="decimal" step="any" placeholder="e.g. 100" />
+
+          <div class="row">
+            <button id="calc-pct-change" class="btn primary" type="submit">Calculate</button>
+            <button id="clear-pct-change" class="btn" type="button">Clear</button>
+            <button id="copy-pct-change" class="btn" type="button">Copy</button>
+          </div>
+
+          <div id="error-pct-change" class="error" role="status" aria-live="assertive"></div>
+          <div id="output-pct-change" class="output" role="region" aria-live="polite"></div>
+          <div id="meta-pct-change" class="result-meta" aria-hidden="true"></div>
+        </form>
+      </div>
+
     </section>
   </main>
 

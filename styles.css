@@ -24,3 +24,5 @@ select,input[type=number],input[type=text]{
 .result-meta{font-weight:600;font-size:0.98rem;color:#0b1220;margin-top:8px}
 .copy-small{font-size:0.85rem;color:var(--muted);margin-left:8px}
 .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+
+.calc-block{border-top:1px dashed #e6eefc;padding-top:14px;margin-top:14px}

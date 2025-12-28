@@ -7,152 +7,126 @@ const fmtNum = (n) => {
   return n.toLocaleString(undefined, {minimumFractionDigits: decimals, maximumFractionDigits: 2});
 };
 
-// Elements
-const mode = el('mode');
-const fields = el('fields');
-const form = el('calc-form');
-const calcBtn = el('calc-btn');
-const clearBtn = el('clear-btn');
-const copyBtn = el('copy-btn');
-const output = el('output');
-const error = el('error');
-const meta = el('meta');
-
-// Render fields per mode
-function renderFields() {
-  const m = mode.value;
-  meta.textContent = '';
-  error.textContent = '';
-  output.textContent = '';
-
-  if (m === 'pct-of') {
-    fields.innerHTML = `
-      <label for="pct">Percentage (%)</label>
-      <input id="pct" name="pct" type="number" inputmode="decimal" step="any" placeholder="e.g. 15" />
-      <label for="value">Value</label>
-      <input id="value" name="value" type="number" inputmode="decimal" step="any" placeholder="e.g. 200" />
-    `;
-    el('pct').focus();
-  } else if (m === 'what-percent') {
-    fields.innerHTML = `
-      <label for="part">Part (A)</label>
-      <input id="part" name="part" type="number" inputmode="decimal" step="any" placeholder="e.g. 30" />
-      <label for="whole">Whole (B)</label>
-      <input id="whole" name="whole" type="number" inputmode="decimal" step="any" placeholder="e.g. 200" />
-    `;
-    el('part').focus();
-  } else if (m === 'apply-pct') {
-    fields.innerHTML = `
-      <label for="base">Base value</label>
-      <input id="base" name="base" type="number" inputmode="decimal" step="any" placeholder="e.g. 100" />
-      <label for="pct2">Percentage (%)</label>
-      <input id="pct2" name="pct2" type="number" inputmode="decimal" step="any" placeholder="e.g. 15" />
-      <div class="controls-inline" role="radiogroup" aria-label="Increase or Decrease">
-        <label><input type="radio" name="dir" value="increase" checked /> Increase</label>
-        <label><input type="radio" name="dir" value="decrease" /> Decrease</label>
-      </div>
-    `;
-    el('base').focus();
-  } else if (m === 'pct-change') {
-    fields.innerHTML = `
-      <label for="from">From (old value)</label>
-      <input id="from" name="from" type="number" inputmode="decimal" step="any" placeholder="e.g. 80" />
-      <label for="to">To (new value)</label>
-      <input id="to" name="to" type="number" inputmode="decimal" step="any" placeholder="e.g. 100" />
-    `;
-    el('from').focus();
-  }
-}
-
-// Calculation logic
-function calculate(e) {
-  if (e) e.preventDefault();
-  error.textContent = '';
-  output.textContent = '';
-  meta.textContent = '';
-  const m = mode.value;
-
-  try {
-    if (m === 'pct-of') {
-      const pct = parseFloat(el('pct').value);
-      const val = parseFloat(el('value').value);
-      if (!isFinite(pct) || !isFinite(val)) throw 'Please enter valid numbers.';
-      const result = (val * pct) / 100;
-      output.textContent = `${fmtNum(pct)}% of ${fmtNum(val)} = ${fmtNum(result)}`;
-      meta.textContent = `Computed: value × percentage ÷ 100`;
-    } else if (m === 'what-percent') {
-      const part = parseFloat(el('part').value);
-      const whole = parseFloat(el('whole').value);
-      if (!isFinite(part) || !isFinite(whole)) throw 'Please enter valid numbers.';
-      if (whole === 0) throw 'Whole (B) cannot be zero.';
-      const pct = (part / whole) * 100;
-      output.textContent = `${fmtNum(part)} is ${fmtNum(pct)}% of ${fmtNum(whole)}`;
-      meta.textContent = `Computed: (A ÷ B) × 100`;
-    } else if (m === 'apply-pct') {
-      const base = parseFloat(el('base').value);
-      const pct = parseFloat(el('pct2').value);
-      if (!isFinite(base) || !isFinite(pct)) throw 'Please enter valid numbers.';
-      const dir = document.querySelector('input[name="dir"]:checked').value;
-      const change = (base * pct) / 100;
-      const newVal = dir === 'increase' ? base + change : base - change;
-      const sign = dir === 'increase' ? '+' : '-';
-      output.textContent = `${fmtNum(base)} ${dir} ${fmtNum(pct)}% = ${fmtNum(newVal)} (${sign}${fmtNum(change)})`;
-      meta.textContent = `Computed: base ${dir} by (base × percentage ÷ 100)`;
-    } else if (m === 'pct-change') {
-      const from = parseFloat(el('from').value);
-      const to = parseFloat(el('to').value);
-      if (!isFinite(from) || !isFinite(to)) throw 'Please enter valid numbers.';
-      if (from === 0) {
-        if (to === 0) {
-          output.textContent = `No change (both values are 0).`;
-          return;
-        } else {
-          output.textContent = `Change from 0 to ${fmtNum(to)} — percent change is undefined (infinite).`;
-          return;
-        }
-      }
-      const diff = to - from;
-      const pct = (diff / Math.abs(from)) * 100;
-      const type = pct > 0 ? 'increase' : (pct < 0 ? 'decrease' : 'no change');
-      output.textContent = `${fmtNum(from)} → ${fmtNum(to)} = ${fmtNum(Math.abs(pct))}% ${type}`;
-      meta.textContent = `Computed: ((to - from) ÷ |from|) × 100`;
-    }
-  } catch (err) {
-    error.textContent = err;
-  }
-}
-
-// Copy result to clipboard
-async function copyResult() {
-  const text = output.textContent.trim();
+// Generic copy helper
+async function copyText(targetOutputEl) {
+  const text = targetOutputEl.textContent.trim();
   if (!text) {
-    error.textContent = 'Nothing to copy.';
-    return;
+    return 'Nothing to copy.';
   }
+  await navigator.clipboard.writeText(text);
+  return 'copied';
+}
+
+// Handlers for each calculator block
+function handlePctOf(e) {
+  if (e) e.preventDefault();
+  const out = el('output-pct-of');
+  const err = el('error-pct-of');
+  const meta = el('meta-pct-of');
+  out.textContent = ''; err.textContent = ''; meta.textContent = '';
   try {
-    await navigator.clipboard.writeText(text);
-    meta.textContent = 'Result copied to clipboard';
-    setTimeout(()=>{ meta.textContent = '' }, 1500);
-  } catch {
-    error.textContent = 'Copy failed — your browser may block clipboard access.';
-  }
+    const pct = parseFloat(el('pct_of_pct').value);
+    const val = parseFloat(el('pct_of_value').value);
+    if (!isFinite(pct) || !isFinite(val)) throw 'Please enter valid numbers.';
+    const result = (val * pct) / 100;
+    out.textContent = `${fmtNum(pct)}% of ${fmtNum(val)} = ${fmtNum(result)}`;
+    meta.textContent = `Computed: value × percentage ÷ 100`;
+  } catch (errMsg) { err.textContent = errMsg; }
 }
 
-// Clear
-function clearAll() {
-  form.reset();
-  renderFields();
-  output.textContent = '';
-  error.textContent = '';
-  meta.textContent = '';
-  el('pct')?.focus();
+function handleWhatPercent(e) {
+  if (e) e.preventDefault();
+  const out = el('output-what-percent');
+  const err = el('error-what-percent');
+  const meta = el('meta-what-percent');
+  out.textContent = ''; err.textContent = ''; meta.textContent = '';
+  try {
+    const part = parseFloat(el('wp_part').value);
+    const whole = parseFloat(el('wp_whole').value);
+    if (!isFinite(part) || !isFinite(whole)) throw 'Please enter valid numbers.';
+    if (whole === 0) throw 'Whole (B) cannot be zero.';
+    const pct = (part / whole) * 100;
+    out.textContent = `${fmtNum(part)} is ${fmtNum(pct)}% of ${fmtNum(whole)}`;
+    meta.textContent = `Computed: (A ÷ B) × 100`;
+  } catch (errMsg) { err.textContent = errMsg; }
 }
 
-// Init
-mode.addEventListener('change', renderFields);
-form.addEventListener('submit', calculate);
-clearBtn.addEventListener('click', clearAll);
-copyBtn.addEventListener('click', copyResult);
+function handleApplyPct(e) {
+  if (e) e.preventDefault();
+  const out = el('output-apply-pct');
+  const err = el('error-apply-pct');
+  const meta = el('meta-apply-pct');
+  out.textContent = ''; err.textContent = ''; meta.textContent = '';
+  try {
+    const base = parseFloat(el('ap_base').value);
+    const pct = parseFloat(el('ap_pct').value);
+    if (!isFinite(base) || !isFinite(pct)) throw 'Please enter valid numbers.';
+    const dir = document.querySelector('input[name="ap_dir"]:checked').value;
+    const change = (base * pct) / 100;
+    const newVal = dir === 'increase' ? base + change : base - change;
+    const sign = dir === 'increase' ? '+' : '-';
+    out.textContent = `${fmtNum(base)} ${dir} ${fmtNum(pct)}% = ${fmtNum(newVal)} (${sign}${fmtNum(change)})`;
+    meta.textContent = `Computed: base ${dir} by (base × percentage ÷ 100)`;
+  } catch (errMsg) { err.textContent = errMsg; }
+}
 
-// Initial render
-renderFields();
+function handlePctChange(e) {
+  if (e) e.preventDefault();
+  const out = el('output-pct-change');
+  const err = el('error-pct-change');
+  const meta = el('meta-pct-change');
+  out.textContent = ''; err.textContent = ''; meta.textContent = '';
+  try {
+    const from = parseFloat(el('pc_from').value);
+    const to = parseFloat(el('pc_to').value);
+    if (!isFinite(from) || !isFinite(to)) throw 'Please enter valid numbers.';
+    if (from === 0) {
+      if (to === 0) {
+        out.textContent = `No change (both values are 0).`;
+        return;
+      } else {
+        out.textContent = `Change from 0 to ${fmtNum(to)} — percent change is undefined (infinite).`;
+        return;
+      }
+    }
+    const diff = to - from;
+    const pct = (diff / Math.abs(from)) * 100;
+    const type = pct > 0 ? 'increase' : (pct < 0 ? 'decrease' : 'no change');
+    out.textContent = `${fmtNum(from)} → ${fmtNum(to)} = ${fmtNum(Math.abs(pct))}% ${type}`;
+    meta.textContent = `Computed: ((to - from) ÷ |from|) × 100`;
+  } catch (errMsg) { err.textContent = errMsg; }
+}
+
+// Clear helpers
+function clearForm(formId, outId, errId, metaId) {
+  const f = el(formId);
+  if (f) f.reset();
+  el(outId).textContent = '';
+  el(errId).textContent = '';
+  el(metaId).textContent = '';
+}
+
+// Wire up events
+document.getElementById('form-pct-of').addEventListener('submit', handlePctOf);
+document.getElementById('clear-pct-of').addEventListener('click', ()=> clearForm('form-pct-of','output-pct-of','error-pct-of','meta-pct-of'));
+document.getElementById('copy-pct-of').addEventListener('click', async ()=>{
+  try { const res = await copyText(el('output-pct-of')); if(res==='copied'){ el('meta-pct-of').textContent='Result copied to clipboard'; setTimeout(()=>el('meta-pct-of').textContent='',1500);} else el('error-pct-of').textContent=res;} catch { el('error-pct-of').textContent='Copy failed — your browser may block clipboard access.' }
+});
+
+document.getElementById('form-what-percent').addEventListener('submit', handleWhatPercent);
+document.getElementById('clear-what-percent').addEventListener('click', ()=> clearForm('form-what-percent','output-what-percent','error-what-percent','meta-what-percent'));
+document.getElementById('copy-what-percent').addEventListener('click', async ()=>{
+  try { const res = await copyText(el('output-what-percent')); if(res==='copied'){ el('meta-what-percent').textContent='Result copied to clipboard'; setTimeout(()=>el('meta-what-percent').textContent='',1500);} else el('error-what-percent').textContent=res;} catch { el('error-what-percent').textContent='Copy failed — your browser may block clipboard access.' }
+});
+
+document.getElementById('form-apply-pct').addEventListener('submit', handleApplyPct);
+document.getElementById('clear-apply-pct').addEventListener('click', ()=> clearForm('form-apply-pct','output-apply-pct','error-apply-pct','meta-apply-pct'));
+document.getElementById('copy-apply-pct').addEventListener('click', async ()=>{
+  try { const res = await copyText(el('output-apply-pct')); if(res==='copied'){ el('meta-apply-pct').textContent='Result copied to clipboard'; setTimeout(()=>el('meta-apply-pct').textContent='',1500);} else el('error-apply-pct').textContent=res;} catch { el('error-apply-pct').textContent='Copy failed — your browser may block clipboard access.' }
+});
+
+document.getElementById('form-pct-change').addEventListener('submit', handlePctChange);
+document.getElementById('clear-pct-change').addEventListener('click', ()=> clearForm('form-pct-change','output-pct-change','error-pct-change','meta-pct-change'));
+document.getElementById('copy-pct-change').addEventListener('click', async ()=>{
+  try { const res = await copyText(el('output-pct-change')); if(res==='copied'){ el('meta-pct-change').textContent='Result copied to clipboard'; setTimeout(()=>el('meta-pct-change').textContent='',1500);} else el('error-pct-change').textContent=res;} catch { el('error-pct-change').textContent='Copy failed — your browser may block clipboard access.' }
+});
