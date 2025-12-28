@@ -57,12 +57,16 @@
       </div>
 
       <div class="calc-block" id="block-apply-pct">
-        <h3>Increase / Decrease (percent change)</h3>
+        <h3>Increase / Decrease by %</h3>
         <form id="form-apply-pct" novalidate>
-          <label for="ap_in1">Initial value</label>
-          <input id="ap_in1" name="in1" type="number" inputmode="decimal" step="any" placeholder="e.g. 100" />
-          <label for="ap_in2">Final value</label>
-          <input id="ap_in2" name="in2" type="number" inputmode="decimal" step="any" placeholder="e.g. 118" />
+          <label for="ap_base">Base value</label>
+          <input id="ap_base" name="base" type="number" inputmode="decimal" step="any" placeholder="e.g. 100" />
+          <label for="ap_pct">Percentage (%)</label>
+          <input id="ap_pct" name="pct" type="number" inputmode="decimal" step="any" placeholder="e.g. 15" />
+          <div class="controls-inline" role="radiogroup" aria-label="Increase or Decrease">
+            <label class="small"><input type="radio" name="ap_dir" value="increase" checked /> Increase</label>
+            <label class="small"><input type="radio" name="ap_dir" value="decrease" /> Decrease</label>
+          </div>
 
           <div class="row">
             <button id="calc-apply-pct" class="btn primary" type="submit">Calculate</button>

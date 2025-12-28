@@ -58,21 +58,15 @@ function handleApplyPct(e) {
   const meta = el('meta-apply-pct');
   out.textContent = ''; err.textContent = ''; meta.textContent = '';
   try {
-    const from = parseFloat(el('ap_in1').value);
-    const to = parseFloat(el('ap_in2').value);
-    if (!isFinite(from) || !isFinite(to)) throw 'Please enter valid numbers.';
-    if (from === 0) {
-      if (to === 0) {
-        out.textContent = `No change (both values are 0).`;
-        return;
-      } else {
-        out.textContent = `Change from 0 to ${fmtNum(to)} — percent change is undefined (infinite).`;
-        return;
-      }
-    }
-    const pct = ((to - from) / Math.abs(from)) * 100;
-    out.textContent = `${fmtNum(from)} → ${fmtNum(to)} = ${fmtNum(pct)}%`;
-    meta.textContent = `Computed: ((to - from) ÷ |from|) × 100`;
+    const base = parseFloat(el('ap_base').value);
+    const pct = parseFloat(el('ap_pct').value);
+    if (!isFinite(base) || !isFinite(pct)) throw 'Please enter valid numbers.';
+    const dir = document.querySelector('input[name="ap_dir"]:checked').value;
+    const change = (base * pct) / 100;
+    const newVal = dir === 'increase' ? base + change : base - change;
+    const sign = dir === 'increase' ? '+' : '-';
+    out.textContent = `${fmtNum(base)} ${dir} ${fmtNum(pct)}% = ${fmtNum(newVal)} (${sign}${fmtNum(change)})`;
+    meta.textContent = `Computed: base ${dir} by (base × percentage ÷ 100)`;
   } catch (errMsg) { err.textContent = errMsg; }
 }
 
